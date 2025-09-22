@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         // OneDrive signed-in status via MSAL cache
         try {
             val app = PublicClientApplication.createSingleAccountPublicClientApplication(this, com.onedrivesyncer.app.R.raw.msal_config)
-            app.getCurrentAccountAsync(object : com.microsoft.identity.client.CurrentAccountCallback {
+            app.getCurrentAccountAsync(object : com.microsoft.identity.client.ISingleAccountPublicClientApplication.CurrentAccountCallback {
                 override fun onAccountLoaded(activeAccount: com.microsoft.identity.client.IAccount?) {
                     val signedIn = activeAccount != null
                     binding.tvStatusOneDrive.text = getString(if (signedIn) com.onedrivesyncer.app.R.string.status_onedrive_signed_in else com.onedrivesyncer.app.R.string.status_onedrive_signed_out)

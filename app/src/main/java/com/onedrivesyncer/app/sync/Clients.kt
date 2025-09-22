@@ -17,31 +17,41 @@ class OneDriveClient(private val tokenProvider: suspend () -> String?) {
 
     suspend fun listNewMedia(): List<RemoteMedia> {
         val token = tokenProvider() ?: return emptyList()
-        var nextUrl: String? = "https://graph.microsoft.com/v1.0/me/drive/special/cameraRoll/children?$select=id,name,@microsoft.graph.downloadUrl,photo,video,file&$top=200"
+    var nextUrl: String? = "https://graph.microsoft.com/v1.0/me/drive/special/cameraRoll/children?%24select=id,name,@microsoft.graph.downloadUrl,photo,video,file&%24top=200"
         val list = mutableListOf<RemoteMedia>()
-        while (nextUrl != null && list.size < 1000) { // cap to avoid runaway
+        var keepGoing = true
+        while (keepGoing && nextUrl != null && list.size < 1000) {
+            val url = nextUrl!!
             val req = Request.Builder()
-                .url(nextUrl!!)
+                .url(url)
                 .addHeader("Authorization", "Bearer $token")
                 .build()
             http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) break
-                val body = resp.body?.string() ?: break
-                val json = JSONObject(body)
-                val arr: JSONArray = json.optJSONArray("value") ?: JSONArray()
-                for (i in 0 until arr.length()) {
-                    val item = arr.getJSONObject(i)
-                    val hasMedia = item.has("photo") || item.has("video")
-                    val dl = item.optString("@microsoft.graph.downloadUrl", null)
-                    if (hasMedia && dl != null) {
-                        list += RemoteMedia(
-                            id = item.getString("id"),
-                            name = item.optString("name", item.getString("id")),
-                            downloadUrl = dl
-                        )
+                if (!resp.isSuccessful) {
+                    keepGoing = false
+                } else {
+                    val body = resp.body?.string()
+                    if (body == null) {
+                        keepGoing = false
+                    } else {
+                        val json = JSONObject(body)
+                        val arr: JSONArray = json.optJSONArray("value") ?: JSONArray()
+                        for (i in 0 until arr.length()) {
+                            val item = arr.getJSONObject(i)
+                            val hasMedia = item.has("photo") || item.has("video")
+                            val dl = item.optString("@microsoft.graph.downloadUrl", null)
+                            if (hasMedia && dl != null) {
+                                list += RemoteMedia(
+                                    id = item.getString("id"),
+                                    name = item.optString("name", item.getString("id")),
+                                    downloadUrl = dl
+                                )
+                            }
+                        }
+                        nextUrl = json.optString("@odata.nextLink", null)
+                        keepGoing = nextUrl != null
                     }
                 }
-                nextUrl = json.optJSONObject("@odata.nextLink")?.toString() ?: json.optString("@odata.nextLink", null)
             }
         }
         return list
