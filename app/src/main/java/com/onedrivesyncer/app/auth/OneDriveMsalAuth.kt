@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.microsoft.identity.client.*
+import com.microsoft.identity.client.IPublicClientApplication.ISingleAccountApplicationCreatedListener
 import com.microsoft.identity.client.exception.MsalException
 
 class OneDriveMsalAuth(private val context: Context) {
@@ -12,7 +13,7 @@ class OneDriveMsalAuth(private val context: Context) {
         PublicClientApplication.createSingleAccountPublicClientApplication(
             context,
             com.onedrivesyncer.app.R.raw.msal_config,
-            object : ISingleAccountPublicClientApplication.ISingleAccountApplicationCreatedListener {
+            object : ISingleAccountApplicationCreatedListener {
                 override fun onCreated(application: ISingleAccountPublicClientApplication) {
                     cb(application)
                 }
@@ -46,7 +47,11 @@ class OneDriveMsalAuth(private val context: Context) {
     fun getAccessTokenSilent(scopes: Array<String>, onResult: (String?) -> Unit) {
         withApp { app ->
             if (app == null) return@withApp onResult(null)
-            app.acquireTokenSilentAsync(scopes, null, object : SilentAuthenticationCallback {
+            val authority: String = try {
+                (app as? PublicClientApplication)?.configuration?.defaultAuthority?.authorityURL?.toString()
+                    ?: "https://login.microsoftonline.com/common/"
+            } catch (_: Throwable) { "https://login.microsoftonline.com/common/" }
+            app.acquireTokenSilentAsync(scopes, authority, object : SilentAuthenticationCallback {
                 override fun onSuccess(authenticationResult: IAuthenticationResult?) {
                     onResult(authenticationResult?.accessToken)
                 }
