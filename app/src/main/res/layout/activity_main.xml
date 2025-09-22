@@ -40,4 +40,18 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp" />
 
+    <Button
+        android:id="@+id/btnSignInOneDrive"
+        android:text="@string/sign_in_onedrive"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnSignInGoogle"
+        android:text="@string/sign_in_google"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>

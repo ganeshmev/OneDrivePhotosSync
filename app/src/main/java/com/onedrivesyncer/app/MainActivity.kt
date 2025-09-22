@@ -10,6 +10,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.onedrivesyncer.app.databinding.ActivityMainBinding
 import com.onedrivesyncer.app.service.SyncService
+import com.onedrivesyncer.app.auth.OneDriveMsalAuth
+import com.onedrivesyncer.app.auth.GoogleAuth
+import com.onedrivesyncer.app.auth.TokenStore
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +29,12 @@ class MainActivity : AppCompatActivity() {
             )
             getSharedPreferences("saf", MODE_PRIVATE).edit().putString("root", uri.toString()).apply()
         }
+    }
+
+    private val googleAuthResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val store = TokenStore(this)
+        val gAuth = GoogleAuth(this, store)
+        gAuth.handleAuthResponse(result.data) { /* optional UI feedback */ }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,5 +63,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnPickFolder.setOnClickListener { pickFolder.launch(null) }
+
+        binding.btnSignInOneDrive.setOnClickListener {
+            val msal = OneDriveMsalAuth(this)
+            val scopes = arrayOf("Files.ReadWrite", "offline_access")
+            msal.signIn(this, scopes) { ok, _ ->
+                // optional: toast/log
+            }
+        }
+
+        binding.btnSignInGoogle.setOnClickListener {
+            val intent = GoogleAuth(this, TokenStore(this)).createAuthIntent()
+            if (intent != null) googleAuthResult.launch(intent)
+        }
     }
 }
