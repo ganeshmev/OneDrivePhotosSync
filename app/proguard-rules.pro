@@ -30,3 +30,13 @@
 
 ## Keep JSON org classes used
 -dontwarn org.json.**
+
+## Silence optional annotation/telemetry libraries referenced transitively
+# AutoValue (annotations-only; not needed at runtime)
+-dontwarn com.google.auto.value.**
+# OpenTelemetry (not used by app runtime)
+-dontwarn io.opentelemetry.**
+# FindBugs annotations (provided-only)
+-dontwarn edu.umd.cs.findbugs.annotations.**
+# Yubico YubiKit (transitive reference from dependencies; not used)
+-dontwarn com.yubico.yubikit.**
