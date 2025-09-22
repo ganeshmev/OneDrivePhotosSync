@@ -49,6 +49,13 @@ jobs:
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
 
+      - name: Generate PNG logo from SVG for README fallback
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+          mkdir -p branding
+          convert -background none branding/repo-logo.svg -resize 256x256 branding/repo-logo.png || true
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug -x lint
 
@@ -81,6 +88,19 @@ jobs:
             echo "No keystore; building unsigned release"; ./gradlew assembleRelease -x lint
           fi
 
+      - name: Rename APKs for friendly asset names (on tag only)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -e
+          REF_NAME="${{ github.ref_name }}"
+          mkdir -p dist
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            cp app/build/outputs/apk/debug/app-debug.apk "dist/OneDrive-Photos-Sync-${REF_NAME}-debug.apk"
+          fi
+          if [ -f app/build/outputs/apk/release/app-release.apk ]; then
+            cp app/build/outputs/apk/release/app-release.apk "dist/OneDrive-Photos-Sync-${REF_NAME}.apk"
+          fi
+
       - name: Create GitHub Release and upload APK
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
@@ -90,5 +110,5 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            app/build/outputs/apk/debug/app-debug.apk
-            app/build/outputs/apk/release/app-release.apk
+            dist/OneDrive-Photos-Sync-${{ github.ref_name }}-debug.apk
+            dist/OneDrive-Photos-Sync-${{ github.ref_name }}.apk

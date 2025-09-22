@@ -1,5 +1,8 @@
 <p align="center">
-	<img src="branding/repo-logo.svg" alt="OneDrive Photos Sync" width="160" height="160" />
+	<picture>
+		<source type="image/svg+xml" srcset="branding/repo-logo.svg" />
+		<img src="branding/repo-logo.png" alt="OneDrive Photos Sync" width="160" height="160" />
+	</picture>
 </p>
 
 # OneDrive to Google Photos Sync (Android)
