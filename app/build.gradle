@@ -17,7 +17,11 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // Manifest placeholders for AppAuth redirect handling
         manifestPlaceholders = [
-                appAuthRedirectScheme: "onedrivephotosync"
+                // OneDrive (MSAL) redirect scheme
+                appAuthRedirectScheme: "onedrivephotosync",
+                // Google AppAuth recommended redirect (scheme must be com.googleusercontent.apps.<client_id>)
+                googleRedirectScheme: "com.googleusercontent.apps.SET_ME_GOOGLE_OAUTH_CLIENT_ID",
+                googleRedirectPath: "oauth2redirect"
         ]
     }
 

@@ -10,7 +10,8 @@
     <string name="sign_in_google">Sign in to Google Photos</string>
     <!-- OAuth placeholders; replace with real values -->
     <string name="google_client_id">SET_ME_GOOGLE_OAUTH_CLIENT_ID</string>
-    <string name="google_redirect_uri">onedrivephotosync://auth</string>
+    <!-- Recommended Google AppAuth redirect pattern: com.googleusercontent.apps.<client_id>://oauth2redirect -->
+    <string name="google_redirect_uri">com.googleusercontent.apps.SET_ME_GOOGLE_OAUTH_CLIENT_ID://oauth2redirect</string>
     <string name="status_onedrive_signed_in">OneDrive: Signed in</string>
     <string name="status_onedrive_signed_out">OneDrive: Signed out</string>
     <string name="status_google_signed_in">Google: Signed in</string>
