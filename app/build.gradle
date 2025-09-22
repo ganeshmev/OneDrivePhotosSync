@@ -61,8 +61,10 @@ dependencies {
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
 
-    // MSAL for OneDrive auth (downgraded to avoid 'display-mask' dependency not in public repos)
-    implementation 'com.microsoft.identity.client:msal:4.6.0'
+    // MSAL for OneDrive auth (exclude display-mask to avoid GitHub packages)
+    implementation('com.microsoft.identity.client:msal:4.6.0') {
+        exclude group: 'com.microsoft.device.display', module: 'display-mask'
+    }
     // Microsoft Graph (optional for richer operations)
     implementation 'com.microsoft.graph:microsoft-graph:6.16.0'
 
