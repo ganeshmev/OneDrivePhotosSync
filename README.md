@@ -25,19 +25,86 @@ Push to `main` or trigger the workflow manually. The debug APK is uploaded as an
 
 On tags matching `v*`, a GitHub Release is created and the APK(s) are attached. If signing secrets are configured, a signed `app-release.apk` is also attached.
 
-## Usage
+## How to use the app
 
-1. Install the APK on your Pixel.
-2. Open the app and tap “Start Background Sync.” A foreground notification appears.
-3. Use “Grant Permissions” if prompted. The app uses network access and, later, SAF for local file deletions.
-4. Battery optimization: tap the button to exclude the app for more reliable background work.
+Follow these steps on your Android device (Pixel recommended):
 
-Current behavior: The worker runs every ~15 minutes. After you sign in once for OneDrive and Google, it authenticates, lists OneDrive media, uploads to Google Photos, and deletes on success.
+1) Install the APK
+- Download the latest APK from GitHub Releases (on a tag like `v0.x.y`).
+- If prompted, allow installing from unknown sources.
 
-Notes:
-- OneDrive interactive sign-in needs to be done once via the button; after that, silent tokens should work in the worker.
-- Google OAuth now uses AppAuth; you must supply real client ID and redirect URI to sign in successfully.
-- Camera Roll path and local filename mapping for on-device deletion is simplistic (name only). If your device’s folder structure differs, we can extend it.
+2) First-run setup (once)
+- Open the app.
+- Tap Grant Permissions to allow network access; on Android 10 and below you may also be asked for storage permissions.
+- Tap Battery Optimization Settings and exempt the app so background sync is reliable.
+
+3) Sign in to your accounts (once)
+- Tap Sign in to OneDrive and complete Microsoft sign-in. Once successful, tokens are cached and future background runs use silent refresh.
+- Tap Sign in to Google Photos and complete sign-in. You must configure the correct Google OAuth client ID and redirect URI inside the app first (see Configuration below).
+
+4) Pick local folder for deletions (optional but recommended)
+- Tap Pick Local Folder (SAF) and choose the folder that contains your camera photos/videos (e.g., DCIM/Camera). This lets the app delete local files after they’re safely uploaded to Google Photos and removed from OneDrive.
+
+5) Start background sync
+- Tap Start Background Sync. A persistent notification will show that the service is running.
+- WorkManager will run a sync roughly every 15 minutes (Android enforces minimum intervals and may batch runs to save battery).
+
+6) Monitor status
+- The main screen shows:
+	- OneDrive: Signed in / Signed out
+	- Google: Signed in / Signed out
+	- Last sync: timestamp with counts (success and total processed in the last cycle)
+
+Behavior
+- On each cycle, the app attempts to list new media from OneDrive Camera Roll, download items, upload to Google Photos, delete the file from OneDrive, and then best‑effort delete the matching local file (within the SAF-picked folder).
+- If either account isn’t signed in or tokens can’t be refreshed silently, the cycle is skipped without crashing and will try again next time.
+
+Notes
+- OneDrive interactive sign-in is needed once; after that, silent tokens should work in the worker.
+- Google OAuth uses AppAuth with PKCE. You must supply a real client ID and redirect URI to sign in successfully.
+- Local filename mapping currently uses filename only under the selected folder. If your device stores photos in nested folders or with different names, we can extend this logic.
+
+## Configuration
+
+Before Google sign-in will work, update these values in the app:
+
+- `app/src/main/res/values/strings.xml`
+	- `google_client_id`: your Google OAuth Android client ID
+	- `google_redirect_uri`: your redirect, e.g., `onedrivephotosync://auth`
+
+- `app/src/main/res/raw/msal_config.json`
+	- `client_id`: your Azure App Registration client ID
+	- `redirect_uri`: must match the same scheme you configured in the app and in Azure (defaults to `onedrivephotosync://auth`)
+	- Authorities/audience: leave as default unless you use a specific tenant.
+
+- `app/build.gradle`
+	- `defaultConfig.manifestPlaceholders.appAuthRedirectScheme`: app scheme (defaults to `onedrivephotosync`). If you change it, also update the Google redirect URI and MSAL config.
+
+Google Cloud console
+- Enable Google Photos Library API.
+- Create an OAuth client (Android), add your signing key SHA-1, and match the package name.
+
+Azure AD (Entra ID)
+- Register a public client/native app.
+- Add redirect URI for Android custom scheme (same as above).
+- Scopes: Files.ReadWrite, offline_access.
+
+## Troubleshooting
+
+- I installed the APK but Google sign-in fails
+	- Ensure `google_client_id` and `google_redirect_uri` are set to real values and match those configured in Google Cloud Console.
+	- Confirm your SHA-1 fingerprint matches the signing keystore used to sign your APK.
+
+- OneDrive stays signed out in the UI
+	- Tap Sign in to OneDrive once. If it still doesn’t show, reopen the app (the status checks the MSAL cache on resume).
+
+- Background sync isn’t running
+	- Ensure the foreground service is started from the app.
+	- Exempt the app from battery optimizations and verify WorkManager isn’t restricted.
+
+- Local deletions don’t happen
+	- Make sure you picked the correct top-level folder via SAF and granted write permission (we request persistable read/write).
+	- File name mismatches may prevent deletion; we can extend the mapping to mirror device folder structure if needed.
 
 ## OAuth configuration (coming next)
 
