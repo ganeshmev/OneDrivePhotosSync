@@ -15,9 +15,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     
-    <!-- Account permissions for authentication -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <!-- No legacy account permissions needed for AppAuth/MSAL -->
 
     <application
         android:allowBackup="true"

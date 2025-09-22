@@ -20,13 +20,13 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Keep OneDrive SDK classes
--keep class com.microsoft.graph.** { *; }
--keep class com.microsoft.graph.auth.** { *; }
+## Keep MSAL (Microsoft Authentication Library)
+-keep class com.microsoft.identity.** { *; }
+-dontwarn com.microsoft.identity.**
 
-# Keep Google API classes
--keep class com.google.api.client.** { *; }
--keep class com.google.api.services.** { *; }
+## Keep AppAuth for Google OAuth
+-keep class net.openid.appauth.** { *; }
+-dontwarn net.openid.appauth.**
 
-# Keep model classes
--keep class com.onedrivesyncer.app.model.** { *; }
+## Keep JSON org classes used
+-dontwarn org.json.**

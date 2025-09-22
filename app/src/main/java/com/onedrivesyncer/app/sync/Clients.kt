@@ -1,5 +1,6 @@
 package com.onedrivesyncer.app.sync
 
+import com.onedrivesyncer.app.BuildConfig
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,7 +13,9 @@ data class RemoteMedia(val id: String, val name: String, val downloadUrl: String
 
 class OneDriveClient(private val tokenProvider: suspend () -> String?) {
     private val http: OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+        .apply {
+            if (BuildConfig.DEBUG) addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+        }
         .build()
 
     suspend fun listNewMedia(): List<RemoteMedia> {
@@ -70,7 +73,9 @@ class OneDriveClient(private val tokenProvider: suspend () -> String?) {
 
 class GooglePhotosClient(private val tokenProvider: suspend () -> String?) {
     private val http: OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+        .apply {
+            if (BuildConfig.DEBUG) addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+        }
         .build()
 
     suspend fun uploadBytes(name: String, bytes: ByteArray): Boolean {

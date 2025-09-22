@@ -23,7 +23,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // If signing env vars are present, use them to sign release builds
             if (System.getenv('SIGNING_KEYSTORE') && System.getenv('SIGNING_KEY_ALIAS')) {
@@ -43,7 +44,6 @@ android {
 
     buildFeatures {
         viewBinding true
-        dataBinding true
     }
 
     packagingOptions {
@@ -55,6 +55,11 @@ android {
                     'META-INF/LGPL2.1'
             ]
         }
+    }
+
+    // Only include English resources to keep APK size small
+    defaultConfig {
+        resConfigs 'en'
     }
 
     signingConfigs {
@@ -96,15 +101,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
 
     // Google Drive REST client
-    implementation 'com.google.api-client:google-api-client-android:2.6.0'
-    implementation 'com.google.http-client:google-http-client-gson:1.43.3'
-    implementation 'com.google.apis:google-api-services-drive:v3-rev20240722-2.0.0'
-
-    // For Photos Library uploads (upload via REST)
+    // HTTP client for REST calls
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+    debugImplementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
 
     // Work Manager for background tasks
     implementation 'androidx.work:work-runtime-ktx:2.9.1'
