@@ -63,7 +63,9 @@ class SyncWorker(appContext: Context, params: WorkerParameters) : CoroutineWorke
                 Log.e(TAG, "Failed processing ${item.id}", t)
             }
         }
-        Log.d(TAG, "Cycle done. Uploaded+deleted: $successCount")
+        val msg = "Last sync: ${java.time.Instant.now()} — success=$successCount, total=${items.size}"
+        Log.d(TAG, msg)
+        applicationContext.getSharedPreferences("sync", Context.MODE_PRIVATE).edit().putString("last_result", msg).apply()
         return Result.success()
     }
 

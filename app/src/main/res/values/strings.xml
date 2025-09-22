@@ -10,4 +10,9 @@
     <!-- OAuth placeholders; replace with real values -->
     <string name="google_client_id">SET_ME_GOOGLE_OAUTH_CLIENT_ID</string>
     <string name="google_redirect_uri">onedrivephotosync://auth</string>
+    <string name="status_onedrive_signed_in">OneDrive: Signed in</string>
+    <string name="status_onedrive_signed_out">OneDrive: Signed out</string>
+    <string name="status_google_signed_in">Google: Signed in</string>
+    <string name="status_google_signed_out">Google: Signed out</string>
+    <string name="last_sync_unknown">Last sync: unknown</string>
 </resources>

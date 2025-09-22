@@ -32,7 +32,12 @@ On tags matching `v*`, a GitHub Release is created and the APK(s) are attached. 
 3. Use “Grant Permissions” if prompted. The app uses network access and, later, SAF for local file deletions.
 4. Battery optimization: tap the button to exclude the app for more reliable background work.
 
-Current behavior: The worker runs every ~15 minutes and executes placeholder logic. Once OAuth is configured, it will authenticate, list new OneDrive media, upload to Google, and delete on success.
+Current behavior: The worker runs every ~15 minutes. After you sign in once for OneDrive and Google, it authenticates, lists OneDrive media, uploads to Google Photos, and deletes on success.
+
+Notes:
+- OneDrive interactive sign-in needs to be done once via the button; after that, silent tokens should work in the worker.
+- Google OAuth now uses AppAuth; you must supply real client ID and redirect URI to sign in successfully.
+- Camera Roll path and local filename mapping for on-device deletion is simplistic (name only). If your device’s folder structure differs, we can extend it.
 
 ## OAuth configuration (coming next)
 
@@ -70,9 +75,8 @@ Tokens are stored with AndroidX Security Crypto (`EncryptedSharedPreferences`).
 
 ## Roadmap
 
-- Implement real OneDrive listing via Microsoft Graph
-- Implement Google upload (Drive or Photos upload token flow)
-- Delete from OneDrive + local (SAF) after successful upload
+- Pagination for Microsoft Graph listing, retries/backoff on network, and chunked transfers for large media
+- Enhance local deletion path mapping (device folder structure aware)
 - Progress UI, error handling, and logs
 
 ## Next

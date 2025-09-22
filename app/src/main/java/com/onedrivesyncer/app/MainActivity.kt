@@ -13,6 +13,8 @@ import com.onedrivesyncer.app.service.SyncService
 import com.onedrivesyncer.app.auth.OneDriveMsalAuth
 import com.onedrivesyncer.app.auth.GoogleAuth
 import com.onedrivesyncer.app.auth.TokenStore
+import com.microsoft.identity.client.PublicClientApplication
+import net.openid.appauth.AuthState
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,7 +36,9 @@ class MainActivity : AppCompatActivity() {
     private val googleAuthResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val store = TokenStore(this)
         val gAuth = GoogleAuth(this, store)
-        gAuth.handleAuthResponse(result.data) { /* optional UI feedback */ }
+        gAuth.handleAuthResponse(result.data) {
+            updateStatus()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,5 +80,46 @@ class MainActivity : AppCompatActivity() {
             val intent = GoogleAuth(this, TokenStore(this)).createAuthIntent()
             if (intent != null) googleAuthResult.launch(intent)
         }
+
+        updateStatus()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateStatus()
+    }
+
+    private fun updateStatus() {
+        // OneDrive signed-in status via MSAL cache
+        try {
+            val app = PublicClientApplication.createSingleAccountPublicClientApplication(this, com.onedrivesyncer.app.R.raw.msal_config)
+            app.getCurrentAccountAsync(object : com.microsoft.identity.client.CurrentAccountCallback {
+                override fun onAccountLoaded(activeAccount: com.microsoft.identity.client.IAccount?) {
+                    val signedIn = activeAccount != null
+                    binding.tvStatusOneDrive.text = getString(if (signedIn) com.onedrivesyncer.app.R.string.status_onedrive_signed_in else com.onedrivesyncer.app.R.string.status_onedrive_signed_out)
+                }
+
+                override fun onAccountChanged(priorAccount: com.microsoft.identity.client.IAccount?, currentAccount: com.microsoft.identity.client.IAccount?) {
+                    val signedIn = currentAccount != null
+                    binding.tvStatusOneDrive.text = getString(if (signedIn) com.onedrivesyncer.app.R.string.status_onedrive_signed_in else com.onedrivesyncer.app.R.string.status_onedrive_signed_out)
+                }
+
+                override fun onError(exception: com.microsoft.identity.client.exception.MsalException) {
+                    binding.tvStatusOneDrive.text = getString(com.onedrivesyncer.app.R.string.status_onedrive_signed_out)
+                }
+            })
+        } catch (_: Throwable) {
+            binding.tvStatusOneDrive.text = getString(com.onedrivesyncer.app.R.string.status_onedrive_signed_out)
+        }
+
+        // Google signed-in via stored AuthState
+        val store = TokenStore(this)
+        val stateJson = store.get("google_auth_state")
+        val signedInG = try { stateJson != null && AuthState.jsonDeserialize(stateJson).isAuthorized } catch (_: Throwable) { false }
+        binding.tvStatusGoogle.text = getString(if (signedInG) com.onedrivesyncer.app.R.string.status_google_signed_in else com.onedrivesyncer.app.R.string.status_google_signed_out)
+
+        // Last sync result
+        val last = getSharedPreferences("sync", MODE_PRIVATE).getString("last_result", null)
+        binding.tvLastSync.text = last ?: getString(com.onedrivesyncer.app.R.string.last_sync_unknown)
     }
 }

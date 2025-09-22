@@ -12,6 +12,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <TextView
+        android:id="@+id/tvStatusOneDrive"
+        android:text="@string/status_onedrive_signed_out"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvStatusGoogle"
+        android:text="@string/status_google_signed_out"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tvLastSync"
+        android:text="@string/last_sync_unknown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/btnStart"
         android:text="@string/start_sync"
