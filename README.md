@@ -1,3 +1,7 @@
+<p align="center">
+	<img src="branding/repo-logo.svg" alt="OneDrive Photos Sync" width="160" height="160" />
+</p>
+
 # OneDrive to Google Photos Sync (Android)
 
 A minimal foreground-service + WorkManager scaffold. It now includes OAuth scaffolding and placeholder clients for OneDrive (list/delete) and Google uploads. Next we’ll wire real OAuth and the full sync pipeline.

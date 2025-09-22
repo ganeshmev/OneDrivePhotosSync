@@ -1,22 +1,16 @@
 package com.onedrivesyncer.app.sync
-
-import com.onedrivesyncer.app.BuildConfig
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.logging.HttpLoggingInterceptor
+// No logging-interceptor in release to keep app small
 import org.json.JSONArray
 import org.json.JSONObject
 
 data class RemoteMedia(val id: String, val name: String, val downloadUrl: String)
 
 class OneDriveClient(private val tokenProvider: suspend () -> String?) {
-    private val http: OkHttpClient = OkHttpClient.Builder()
-        .apply {
-            if (BuildConfig.DEBUG) addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
-        }
-        .build()
+    private val http: OkHttpClient = OkHttpClient.Builder().build()
 
     suspend fun listNewMedia(): List<RemoteMedia> {
         val token = tokenProvider() ?: return emptyList()
@@ -72,11 +66,7 @@ class OneDriveClient(private val tokenProvider: suspend () -> String?) {
 }
 
 class GooglePhotosClient(private val tokenProvider: suspend () -> String?) {
-    private val http: OkHttpClient = OkHttpClient.Builder()
-        .apply {
-            if (BuildConfig.DEBUG) addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
-        }
-        .build()
+    private val http: OkHttpClient = OkHttpClient.Builder().build()
 
     suspend fun uploadBytes(name: String, bytes: ByteArray): Boolean {
         val token = tokenProvider() ?: return false
