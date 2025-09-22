@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 import com.onedrivesyncer.app.databinding.ActivityMainBinding
 import com.onedrivesyncer.app.service.SyncService
 import com.onedrivesyncer.app.auth.OneDriveMsalAuth
@@ -15,6 +16,9 @@ import com.onedrivesyncer.app.auth.GoogleAuth
 import com.onedrivesyncer.app.auth.TokenStore
 import com.microsoft.identity.client.PublicClientApplication
 import net.openid.appauth.AuthState
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.onedrivesyncer.app.worker.SyncWorker
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnStart.setOnClickListener {
             startForegroundService(Intent(this, SyncService::class.java))
+            Toast.makeText(this, "Background sync started", Toast.LENGTH_SHORT).show()
         }
 
         binding.btnGrantPerms.setOnClickListener {
@@ -72,13 +77,28 @@ class MainActivity : AppCompatActivity() {
             val msal = OneDriveMsalAuth(this)
             val scopes = arrayOf("Files.ReadWrite", "offline_access")
             msal.signIn(this, scopes) { ok, _ ->
-                // optional: toast/log
+                if (ok) {
+                    Toast.makeText(this, "OneDrive signed in", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "OneDrive sign-in failed. Check msal_config.json client_id and redirect URI.", Toast.LENGTH_LONG).show()
+                }
+                updateStatus()
             }
         }
 
         binding.btnSignInGoogle.setOnClickListener {
             val intent = GoogleAuth(this, TokenStore(this)).createAuthIntent()
-            if (intent != null) googleAuthResult.launch(intent)
+            if (intent != null) {
+                googleAuthResult.launch(intent)
+            } else {
+                Toast.makeText(this, "Google OAuth not configured. Set google_client_id and google_redirect_uri in strings.xml.", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        binding.btnSyncNow.setOnClickListener {
+            WorkManager.getInstance(this)
+                .enqueue(OneTimeWorkRequestBuilder<SyncWorker>().build())
+            Toast.makeText(this, "Sync queued", Toast.LENGTH_SHORT).show()
         }
 
         updateStatus()

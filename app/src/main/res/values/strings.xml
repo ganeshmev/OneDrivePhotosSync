@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">OneDrive Photos Sync</string>
     <string name="start_sync">Start Background Sync</string>
+    <string name="sync_now">Sync Now</string>
     <string name="grant_permissions">Grant Permissions</string>
     <string name="battery_optimizations">Battery Optimization Settings</string>
     <string name="sync_running">Sync service is running…</string>
