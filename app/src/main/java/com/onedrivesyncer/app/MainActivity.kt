@@ -9,6 +9,7 @@ import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.onedrivesyncer.app.databinding.ActivityMainBinding
+import com.onedrivesyncer.app.service.SyncService
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnStart.setOnClickListener {
-            startForegroundService(Intent(this, service.SyncService::class.java))
+            startForegroundService(Intent(this, SyncService::class.java))
         }
 
         binding.btnGrantPerms.setOnClickListener {

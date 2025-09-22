@@ -21,6 +21,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // If signing env vars are present, use them to sign release builds
+            if (System.getenv('SIGNING_KEYSTORE') && System.getenv('SIGNING_KEY_ALIAS')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     
@@ -46,6 +50,19 @@ android {
                     'META-INF/AL2.0',
                     'META-INF/LGPL2.1'
             ]
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile = System.getenv('SIGNING_KEYSTORE') ? file(System.getenv('SIGNING_KEYSTORE')) : null
+            storePassword = System.getenv('SIGNING_STORE_PASSWORD') ?: null
+            keyAlias = System.getenv('SIGNING_KEY_ALIAS') ?: null
+            keyPassword = System.getenv('SIGNING_KEY_PASSWORD') ?: null
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = false
         }
     }
 }
