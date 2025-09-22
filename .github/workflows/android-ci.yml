@@ -112,3 +112,4 @@ jobs:
           files: |
             dist/OneDrive-Photos-Sync-${{ github.ref_name }}-debug.apk
             dist/OneDrive-Photos-Sync-${{ github.ref_name }}.apk
+            branding/repo-logo.png
