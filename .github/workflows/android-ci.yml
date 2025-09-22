@@ -9,6 +9,11 @@ on:
   pull_request:
     branches: [ main, master ]
 
+# Ensure only one run per commit SHA (e.g., when pushing a tag for the same commit)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
