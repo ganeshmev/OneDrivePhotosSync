@@ -4,4 +4,5 @@
     <string name="grant_permissions">Grant Permissions</string>
     <string name="battery_optimizations">Battery Optimization Settings</string>
     <string name="sync_running">Sync service is running…</string>
+    <string name="pick_folder">Pick Local Folder (SAF)</string>
 </resources>

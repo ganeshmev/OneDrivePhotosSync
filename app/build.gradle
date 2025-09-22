@@ -82,9 +82,15 @@ dependencies {
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
 
-    // Auth libs will be added later when wiring real sync to avoid CI resolution issues
+    // OAuth (AppAuth for Google)
     implementation 'net.openid:appauth:0.11.1'
     implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+
+    // MSAL for Azure AD (OneDrive) - exclude Surface Duo display-mask if present
+    implementation('com.microsoft.identity.client:msal:5.2.0') {
+        exclude group: 'com.microsoft.device.display', module: 'display-mask'
+        exclude group: 'com.microsoft.device', module: 'display-mask'
+    }
 
     // Google Sign-In and Play Services Auth
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
@@ -102,6 +108,9 @@ dependencies {
 
     // Work Manager for background tasks
     implementation 'androidx.work:work-runtime-ktx:2.9.1'
+
+    // DocumentFile for SAF operations
+    implementation 'androidx.documentfile:documentfile:1.0.1'
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
